@@ -1,0 +1,40 @@
+if game.Players.LocalPlayer.Name == "nonee_lly5" then -- reason: skid
+    --block
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://1301186018"
+sound.Parent = game:GetService("SoundService")
+sound:Play()
+
+game.StarterGui:SetCore("SendNotification", {
+Title = "Kurd hub"; 
+Text = "ئەم بەشە قەدەغەکراوە لەتو!"; 
+})
+wait(10)
+game.Players.LocalPlayer:kick("\nتو لە لیستی بلوک کراوەکانی لە کورد هوب !\n نامە لە تیک توک بنێرە jack._.872\n")
+wait(2)
+while true do end
+ cc:Disconnect()
+    nsLoop:Disconnect()
+    ncLoop:Disconnect()
+end
+
+
+if game.Players.LocalPlayer.Name == "remzikurdi661" then -- reason: skid
+    --block
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://1301186018"
+sound.Parent = game:GetService("SoundService")
+sound:Play()
+
+game.StarterGui:SetCore("SendNotification", {
+Title = "Kurd hub"; 
+Text = "ئەم بەشە قەدەغەکراوە لەتو!"; 
+})
+wait(10)
+game.Players.LocalPlayer:kick("\nتو لە لیستی بلوک کراوەکانی لە کورد هوب !\n نامە لە تیک توک بنێرە jack._.872\n")
+wait(2)
+while true do end
+ cc:Disconnect()
+    nsLoop:Disconnect()
+    ncLoop:Disconnect()
+end
