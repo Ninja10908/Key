@@ -1,307 +1,213 @@
--- Get the player's PlayerGui for permanent GUI attachment
-local player = game.Players.LocalPlayer
-local gui = Instance.new("ScreenGui")
-gui.Name = "GazerGui"
-gui.Parent = player:WaitForChild("PlayerGui")  -- Always parent to PlayerGui
+local Pl = game:GetService("Players")
+local Rs = game:GetService("RunService")
+local Me = Pl.LocalPlayer
 
--- Create the main frame (GazerMain)
-local GazerMain = Instance.new("Frame")
-GazerMain.Size = UDim2.new(0.4, 0, 0.4, 0)
-GazerMain.Position = UDim2.new(0.5, -GazerMain.Size.X.Offset / 2, 0.5, -GazerMain.Size.Y.Offset / 2)
-GazerMain.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-GazerMain.BackgroundTransparency = 0.2
-GazerMain.BorderSizePixel = 0
-GazerMain.Active = true
-GazerMain.Draggable = true
-GazerMain.Visible = false  -- Initially hidden
-GazerMain.Parent = gui
+local c = Me.Character or Me.CharacterAdded:Wait()
+local hrp = c:WaitForChild("HumanoidRootPart")
 
--- Add rounded corners to the frame
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0.1, 0)
-UICorner.Parent = GazerMain
-
--- Title for the frame (Changed to "Kurdhub")
-local GazerTitle = Instance.new("TextLabel")
-GazerTitle.Size = UDim2.new(1, 0, 0.2, 0)
-GazerTitle.Position = UDim2.new(0, 0, 0, 0)
-GazerTitle.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-GazerTitle.BackgroundTransparency = 0.2
-GazerTitle.BorderSizePixel = 0
-GazerTitle.Text = "kurdhub"  -- Changed to "kurdhub"
-GazerTitle.TextScaled = true
-GazerTitle.Font = Enum.Font.GothamBold
-GazerTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-GazerTitle.Parent = GazerMain
-
--- Add rounded corners to the title
-local UICornerTitle = Instance.new("UICorner")
-UICornerTitle.CornerRadius = UDim.new(0.1, 0)
-UICornerTitle.Parent = GazerTitle
-
--- Input field for entering username/displayname (Changed text to Kurdish)
-local EnterName = Instance.new("TextBox")
-EnterName.Size = UDim2.new(0.85, 0, 0.2, 0)
-EnterName.Position = UDim2.new(0.075, 0, 0.3, 0)
-EnterName.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-EnterName.Text = ""
-EnterName.BackgroundTransparency = 0.2
-EnterName.BorderSizePixel = 0
-EnterName.PlaceholderText = "دوو سئ پیتی ناوەکەی بنوسە"  -- Changed to Kurdish
-EnterName.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-EnterName.TextColor3 = Color3.fromRGB(255, 255, 255)
-EnterName.Font = Enum.Font.Gotham
-EnterName.TextScaled = true
-EnterName.ClearTextOnFocus = true
-EnterName.Parent = GazerMain
-
--- Add rounded corners to the input
-local UICornerInput = Instance.new("UICorner")
-UICornerInput.CornerRadius = UDim.new(0.1, 0)
-UICornerInput.Parent = EnterName
-
--- Create the 'COPY!' button (Changed text to "کوپی")
-local INFO = Instance.new("TextButton")
-INFO.Size = UDim2.new(0.4, 0, 0.2, 0)
-INFO.Position = UDim2.new(0.3, 0, 0.7, 0)
-INFO.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-INFO.BackgroundTransparency = 0.2
-INFO.BorderSizePixel = 0
-INFO.Text = "کوپی"  -- Changed to "کوپی"
-INFO.TextScaled = true
-INFO.Font = Enum.Font.GothamBold
-INFO.TextColor3 = Color3.fromRGB(255, 255, 255)
-INFO.Parent = GazerMain
-
--- Add rounded corners to the button
-local UICornerButton = Instance.new("UICorner")
-UICornerButton.CornerRadius = UDim.new(0.1, 0)
-UICornerButton.Parent = INFO
-
--- Function to toggle visibility of the main frame (GazerMain)
-local function toggleVisibility()
-    GazerMain.Visible = not GazerMain.Visible
-end
-
--- Create the Toggle Visibility Button (this will be at the top center of the screen, changed text to "Copy Avatar")
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-toggleButton.Position = UDim2.new(0.45, 0, 0, 10)  -- Positioned at the top center (50% horizontally)
-toggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-toggleButton.BackgroundTransparency = 0.2
-toggleButton.BorderSizePixel = 0
-toggleButton.Text = "Copy Avatar"  -- Changed to "Copy Avatar"
-toggleButton.TextScaled = true
-toggleButton.Font = Enum.Font.GothamBold
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.Parent = gui
-
--- Add rounded corners to the toggle button
-local UICornerToggle = Instance.new("UICorner")
-UICornerToggle.CornerRadius = UDim.new(0.1, 0)
-UICornerToggle.Parent = toggleButton
-
--- Toggle button click event to toggle visibility of the GazerMain frame
-toggleButton.MouseButton1Click:Connect(function()
-    toggleVisibility()
+Me.CharacterAdded:Connect(function(ch)
+    c = ch
+    hrp = ch:WaitForChild("HumanoidRootPart")
 end)
 
--- Function to reset the avatar (this is for the avatar copy logic)
-local function RESETBLOCK()
-    local args = {
-        [1] = "CharacterChange",
-        [2] = {
-            [1] = 0,
-            [2] = 0,
-            [3] = 0,
-            [4] = 0,
-            [5] = 0,
-            [6] = 0
-        },
-        [3] = "AllBlocky"
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Avata1rOrigina1l"):FireServer(unpack(args))
+local function pmf(i)
+    local p = i
+    while p and p ~= workspace do
+        if p.Parent and p.Parent.Name == "Plots" and p:IsA("Model") then 
+            return p 
+        end
+        p = p.Parent
+    end
 end
 
--- Function to apply the skin tone
-local function APPLY_SKINTONE(Player)
-    local p = Player
-    local c = p.Character or p.CharacterAdded:Wait()
-    local h = c:FindFirstChildOfClass("Humanoid")
-
-    if not h then
-        warn("Humanoid not found!")
-        return
+local function fcp()
+    if not hrp then return nil end
+    
+    local cf = hrp.CFrame
+    local sz = Vector3.new(100, 50, 100)
+    local pr = OverlapParams.new()
+    pr.FilterType = Enum.RaycastFilterType.Exclude
+    pr.FilterDescendantsInstances = {c}
+    
+    local fp = {}
+    for _, pt in ipairs(workspace:GetPartBoundsInBox(cf, sz, pr)) do
+        local m = pmf(pt)
+        if m then
+            fp[m] = true
+        end
     end
-
-    local bodyColors = c:FindFirstChildOfClass("BodyColors")
-
-    if not bodyColors then
-        warn("BodyColors not found!")
-        return
+    
+    local cl, cd = nil, math.huge
+    for pl in pairs(fp) do
+        local pv = pl:GetPivot().Position
+        local ds = (pv - hrp.Position).Magnitude
+        if ds < cd then
+            cl, cd = pl, ds
+        end
     end
-
-    -- Get skin tone (use HeadColor or any other body part color)
-    local skinTone = bodyColors.HeadColor
-
-    -- Convert BrickColor to readable string
-    local skinToneName = skinTone.Name
-
-    -- Fire the RemoteEvent with the detected skin tone
-    local args = {
-        [1] = "skintone",
-        [2] = skinToneName
-    }
-
-    game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Updat1eAvata1r"):FireServer(unpack(args))
+    
+    return cl
 end
 
--- Function to wear clothing (using IDs)
-local function Wear(id)
-    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Updat1eAvata1r"):FireServer("wear", id)
+local function ifl(pp, ur)
+    local t = ((pp.ActionText or "").." "..(pp.ObjectText or "")):lower()
+    if t:match("first") or t:match("1st") then return 1 end
+    if t:match("second") or t:match("2nd") then return 2 end
+    if t:match("third") or t:match("3rd") then return 3 end
+    local cr = pp
+    while cr and cr ~= ur do
+        local f = cr:GetAttribute("Floor")
+        if f ~= nil then return tonumber(f) end
+        cr = cr.Parent
+    end
 end
 
--- Function to copy the clothing of a player
-local function COPYCLOTHING(Player)
-    local p = Player
-    local c = p.Character or p.CharacterAdded:Wait()
-    local h = c:FindFirstChildOfClass("Humanoid")
-
-    if not h then
-        warn("Humanoid not found!")
-        return
-    end
-
-    local d = h:GetAppliedDescription()
-    local cIds = { d.Shirt, d.Pants, d.GraphicTShirt }
-    local done = false
-
-    task.spawn(function()
-        for _, id in ipairs(cIds) do
-            if id ~= 0 then
-                task.wait(1)
-                Wear(id)
+local function cup(pl)
+    local ur = pl and pl:FindFirstChild("Unlock", true)
+    if not ur then return {} end
+    
+    local fd = {}
+    for _, pp in ipairs(ur:GetDescendants()) do
+        if pp:IsA("ProximityPrompt") then
+            local at = (pp.ActionText or ""):lower()
+            local ot = (pp.ObjectText or ""):lower()
+            if at:match("unlock") or ot:match("unlock") then
+                local n = ifl(pp, ur)
+                if n and n >= 1 and n <= 3 then
+                    fd[n] = pp
+                end
             end
         end
-        done = true
-    end)
-
-    repeat task.wait() until done -- Ensure the function waits until completion
+    end
+    return fd
 end
 
--- Function to copy the body parts of a player
-local function COPYBODYPART(Player)
-    local p = Player
-    local c = p.Character or p.CharacterAdded:Wait()
-    local h = c:FindFirstChildOfClass("Humanoid")
-
-    if not h then
-        warn("Humanoid not found!")
-        return
+local function fp(p)
+    if not p or not p.Parent then
+        return false
     end
-
-    local d = h:GetAppliedDescription()
     
-    local bIds = {
-        d.Torso,
-        d.RightArm,
-        d.LeftArm,
-        d.RightLeg,
-        d.LeftLeg,
-        d.Head
-    }
-
-    local done = false
-    task.spawn(function()
-        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Avata1rOrigina1l"):FireServer(
-            "CharacterChange",
-            bIds,
-            "GAZE"
-        )
-        done = true
+    if fireproximityprompt then
+        fireproximityprompt(p)
+        return true
+    end
+    
+    local fr = getfenv().fireproximityprompt or getgenv and getgenv().fireproximityprompt
+    if fr then
+        fr(p)
+        return true
+    end
+    
+    local od = p.MaxActivationDistance
+    local ol = p.RequiresLineOfSight
+    local oh = p.HoldDuration
+    
+    pcall(function()
+        p.MaxActivationDistance = 9999
+        p.RequiresLineOfSight = false
+        p.HoldDuration = 0
+        p.Enabled = true
     end)
-
-    repeat task.wait() until done
-end
-
--- Function to copy the accessories of a player
-local function COPYACCESSORIES(Player)
-    local p = Player
-    local c = p.Character or p.CharacterAdded:Wait()
-    local h = c:FindFirstChildOfClass("Humanoid")
-
-    if not h then
-        warn("Humanoid not found!")
-        return
-    end
-
-    local d = h:GetAppliedDescription()
-    local aIds = {}
-
-    for _, aList in ipairs({
-        d.HatAccessory,
-        d.HairAccessory,
-        d.FaceAccessory,
-        d.NeckAccessory,
-        d.ShouldersAccessory,
-        d.FrontAccessory,
-        d.BackAccessory,
-        d.WaistAccessory
-    }) do
-        for id in string.gmatch(aList, "%d+") do
-            table.insert(aIds, tonumber(id))
-        end
-    end
-
-    local done = false
-    task.spawn(function()
-        for _, id in ipairs(aIds) do
-            task.wait(1)
-            Wear(id)
-        end
-        done = true
+    
+    local s = pcall(function()
+        p:InputHoldBegin()
+        task.wait(0.05)
+        p:InputHoldEnd()
     end)
-
-    repeat task.wait() until done
+    
+    task.delay(0.1, function()
+        pcall(function()
+            p.MaxActivationDistance = od
+            p.RequiresLineOfSight = ol
+            p.HoldDuration = oh
+        end)
+    end)
+    
+    return s
 end
 
--- Main function to start avatar copying logic (using the display name)
-local function START(displayName)
-    local player = nil
-    displayName = string.lower(displayName)
-    for _, plr in ipairs(game.Players:GetPlayers()) do
-        local playerNameLower = string.lower(plr.Name)
-        local playerDisplayNameLower = string.lower(plr.DisplayName)
-        if string.find(playerNameLower, displayName, 1, true) or string.find(playerDisplayNameLower, displayName, 1, true) then
-            player = plr
-            break
+local us = { plot = nil, prs = {}, lu = 0 }
+
+local uc = Rs.Heartbeat:Connect(function()
+    local nw = os.clock()
+    if nw - us.lu > 0.5 then
+        local p = fcp()
+        if p ~= us.plot then
+            us.plot = p
+            us.prs = {}
         end
+        if us.plot then
+            us.prs = cup(us.plot)
+        end
+        us.lu = nw
     end
-
-    if player then
-        COPYACCESSORIES(game.Players.LocalPlayer)
-        COPYACCESSORIES(player)
-        wait(1)
-        RESETBLOCK()
-        wait(3)
-        COPYBODYPART(player)
-        COPYCLOTHING(player)
-        APPLY_SKINTONE(player)
-    end
-end
-
--- Button click event for the "COPY!" button to start the avatar copy process
-INFO.MouseButton1Click:Connect(function()
-    local displayName = EnterName.Text
-    INFO.Size = UDim2.new(0, 0, 0, 0)
-    START(displayName)
-    wait(3)
-    INFO.Size = UDim2.new(0.4, 0, 0.2, 0)
 end)
 
--- Ensure that the GUI is re-parented to PlayerGui when the player resets or respawns
-player.CharacterAdded:Connect(function()
-    if gui.Parent ~= player:WaitForChild("PlayerGui") then
-        gui.Parent = player:WaitForChild("PlayerGui")
+local function gfy()
+    if not hrp or not hrp.Parent then return nil end
+    local yp = hrp.Position.Y
+    
+    if yp >= -7 and yp <= 0 then
+        return 1
+    elseif yp >= 5 and yp <= 20 then
+        return 2
+    elseif yp >= 23 and yp <= 40 then
+        return 3
     end
+    
+    return nil
+end
+
+local function ucf()
+    local cf = gfy()
+    if not cf then return false end
+    
+    if us.plot then
+        us.prs = cup(us.plot)
+    else
+        us.plot = fcp()
+        if us.plot then
+            us.prs = cup(us.plot)
+        end
+    end
+    
+    local p = us.prs[cf]
+    if not p then
+        return false
+    end
+    
+    local s = fp(p)
+    return s
+end
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "UnlockGui"
+sg.ResetOnSpawn = false
+sg.Parent = Me:WaitForChild("PlayerGui")
+
+local ub = Instance.new("TextButton")
+ub.Name = "UnlockButton"
+ub.Text = "Unlock"
+ub.Size = UDim2.new(0, 60, 0, 30)
+ub.Position = UDim2.new(1, -95, 0.5, -130)
+ub.AnchorPoint = Vector2.new(1, 0.5)
+ub.BackgroundColor3 = Color3.new(0, 0, 0)
+ub.TextColor3 = Color3.new(1, 1, 1)
+ub.Font = Enum.Font.GothamBold
+ub.TextSize = 14
+ub.Parent = sg
+Instance.new("UICorner", ub).CornerRadius = UDim.new(0, 6)
+
+ub.MouseButton1Click:Connect(function()
+    ucf()
 end)
+
+_G.ubcl = function()
+    if uc then
+        uc:Disconnect()
+        uc = nil
+    end
+    if sg and sg.Parent then
+        sg:Destroy()
+    end
+end
