@@ -1,213 +1,181 @@
-local Pl = game:GetService("Players")
-local Rs = game:GetService("RunService")
-local Me = Pl.LocalPlayer
-
-local c = Me.Character or Me.CharacterAdded:Wait()
-local hrp = c:WaitForChild("HumanoidRootPart")
-
+local Pl=game:GetService("Players")
+local Rs=game:GetService("RunService")
+local Me=Pl.LocalPlayer
+local c=Me.Character or Me.CharacterAdded:Wait()
+local hrp=c:WaitForChild("HumanoidRootPart")
 Me.CharacterAdded:Connect(function(ch)
-    c = ch
-    hrp = ch:WaitForChild("HumanoidRootPart")
+c=ch
+hrp=ch:WaitForChild("HumanoidRootPart")
 end)
-
 local function pmf(i)
-    local p = i
-    while p and p ~= workspace do
-        if p.Parent and p.Parent.Name == "Plots" and p:IsA("Model") then 
-            return p 
-        end
-        p = p.Parent
-    end
+local p=i
+while p and p ~=workspace do
+if p.Parent and p.Parent.Name=="Plots" and p:IsA("Model") then 
+return p 
 end
-
+p=p.Parent
+end
+end
 local function fcp()
-    if not hrp then return nil end
-    
-    local cf = hrp.CFrame
-    local sz = Vector3.new(100, 50, 100)
-    local pr = OverlapParams.new()
-    pr.FilterType = Enum.RaycastFilterType.Exclude
-    pr.FilterDescendantsInstances = {c}
-    
-    local fp = {}
-    for _, pt in ipairs(workspace:GetPartBoundsInBox(cf, sz, pr)) do
-        local m = pmf(pt)
-        if m then
-            fp[m] = true
-        end
-    end
-    
-    local cl, cd = nil, math.huge
-    for pl in pairs(fp) do
-        local pv = pl:GetPivot().Position
-        local ds = (pv - hrp.Position).Magnitude
-        if ds < cd then
-            cl, cd = pl, ds
-        end
-    end
-    
-    return cl
+if not hrp then return nil end
+local cf=hrp.CFrame
+local sz=Vector3.new(100,50,100)
+local pr=OverlapParams.new()
+pr.FilterType=Enum.RaycastFilterType.Exclude
+pr.FilterDescendantsInstances={c}
+local fp={}
+for _,pt in ipairs(workspace:GetPartBoundsInBox(cf,sz,pr)) do
+local m=pmf(pt)
+if m then
+fp[m]=true
 end
-
-local function ifl(pp, ur)
-    local t = ((pp.ActionText or "").." "..(pp.ObjectText or "")):lower()
-    if t:match("first") or t:match("1st") then return 1 end
-    if t:match("second") or t:match("2nd") then return 2 end
-    if t:match("third") or t:match("3rd") then return 3 end
-    local cr = pp
-    while cr and cr ~= ur do
-        local f = cr:GetAttribute("Floor")
-        if f ~= nil then return tonumber(f) end
-        cr = cr.Parent
-    end
 end
-
+local cl,cd=nil,math.huge
+for pl in pairs(fp) do
+local pv=pl:GetPivot().Position
+local ds=(pv - hrp.Position).Magnitude
+if ds < cd then
+cl,cd=pl,ds
+end
+end
+return cl
+end
+local function ifl(pp,ur)
+local t=((pp.ActionText or "").." "..(pp.ObjectText or "")):lower()
+if t:match("first") or t:match("1st") then return 1 end
+if t:match("second") or t:match("2nd") then return 2 end
+if t:match("third") or t:match("3rd") then return 3 end
+local cr=pp
+while cr and cr ~=ur do
+local f=cr:GetAttribute("Floor")
+if f ~=nil then return tonumber(f) end
+cr=cr.Parent
+end
+end
 local function cup(pl)
-    local ur = pl and pl:FindFirstChild("Unlock", true)
-    if not ur then return {} end
-    
-    local fd = {}
-    for _, pp in ipairs(ur:GetDescendants()) do
-        if pp:IsA("ProximityPrompt") then
-            local at = (pp.ActionText or ""):lower()
-            local ot = (pp.ObjectText or ""):lower()
-            if at:match("unlock") or ot:match("unlock") then
-                local n = ifl(pp, ur)
-                if n and n >= 1 and n <= 3 then
-                    fd[n] = pp
-                end
-            end
-        end
-    end
-    return fd
+local ur=pl and pl:FindFirstChild("Unlock",true)
+if not ur then return {} end
+local fd={}
+for _,pp in ipairs(ur:GetDescendants()) do
+if pp:IsA("ProximityPrompt") then
+local at=(pp.ActionText or ""):lower()
+local ot=(pp.ObjectText or ""):lower()
+if at:match("unlock") or ot:match("unlock") then
+local n=ifl(pp,ur)
+if n and n >=1 and n <=3 then
+fd[n]=pp
 end
-
+end
+end
+end
+return fd
+end
 local function fp(p)
-    if not p or not p.Parent then
-        return false
-    end
-    
-    if fireproximityprompt then
-        fireproximityprompt(p)
-        return true
-    end
-    
-    local fr = getfenv().fireproximityprompt or getgenv and getgenv().fireproximityprompt
-    if fr then
-        fr(p)
-        return true
-    end
-    
-    local od = p.MaxActivationDistance
-    local ol = p.RequiresLineOfSight
-    local oh = p.HoldDuration
-    
-    pcall(function()
-        p.MaxActivationDistance = 9999
-        p.RequiresLineOfSight = false
-        p.HoldDuration = 0
-        p.Enabled = true
-    end)
-    
-    local s = pcall(function()
-        p:InputHoldBegin()
-        task.wait(0.05)
-        p:InputHoldEnd()
-    end)
-    
-    task.delay(0.1, function()
-        pcall(function()
-            p.MaxActivationDistance = od
-            p.RequiresLineOfSight = ol
-            p.HoldDuration = oh
-        end)
-    end)
-    
-    return s
+if not p or not p.Parent then
+return false
 end
-
-local us = { plot = nil, prs = {}, lu = 0 }
-
-local uc = Rs.Heartbeat:Connect(function()
-    local nw = os.clock()
-    if nw - us.lu > 0.5 then
-        local p = fcp()
-        if p ~= us.plot then
-            us.plot = p
-            us.prs = {}
-        end
-        if us.plot then
-            us.prs = cup(us.plot)
-        end
-        us.lu = nw
-    end
+if fireproximityprompt then
+fireproximityprompt(p)
+return true
+end
+local fr=getfenv().fireproximityprompt or getgenv and getgenv().fireproximityprompt
+if fr then
+fr(p)
+return true
+end
+local od=p.MaxActivationDistance
+local ol=p.RequiresLineOfSight
+local oh=p.HoldDuration
+pcall(function()
+p.MaxActivationDistance=9999
+p.RequiresLineOfSight=false
+p.HoldDuration=0
+p.Enabled=true
 end)
-
+local s=pcall(function()
+p:InputHoldBegin()
+task.wait(0.05)
+p:InputHoldEnd()
+end)
+task.delay(0.1,function()
+pcall(function()
+p.MaxActivationDistance=od
+p.RequiresLineOfSight=ol
+p.HoldDuration=oh
+end)
+end)
+return s
+end
+local us={ plot=nil,prs={},lu=0 }
+local uc=Rs.Heartbeat:Connect(function()
+local nw=os.clock()
+if nw - us.lu > 0.5 then
+local p=fcp()
+if p ~=us.plot then
+us.plot=p
+us.prs={}
+end
+if us.plot then
+us.prs=cup(us.plot)
+end
+us.lu=nw
+end
+end)
 local function gfy()
-    if not hrp or not hrp.Parent then return nil end
-    local yp = hrp.Position.Y
-    
-    if yp >= -7 and yp <= 0 then
-        return 1
-    elseif yp >= 5 and yp <= 20 then
-        return 2
-    elseif yp >= 23 and yp <= 40 then
-        return 3
-    end
-    
-    return nil
+if not hrp or not hrp.Parent then return nil end
+local yp=hrp.Position.Y
+if yp >=-7 and yp <=0 then
+return 1
+elseif yp >=5 and yp <=20 then
+return 2
+elseif yp >=23 and yp <=40 then
+return 3
 end
-
+return nil
+end
 local function ucf()
-    local cf = gfy()
-    if not cf then return false end
-    
-    if us.plot then
-        us.prs = cup(us.plot)
-    else
-        us.plot = fcp()
-        if us.plot then
-            us.prs = cup(us.plot)
-        end
-    end
-    
-    local p = us.prs[cf]
-    if not p then
-        return false
-    end
-    
-    local s = fp(p)
-    return s
+local cf=gfy()
+if not cf then return false end
+if us.plot then
+us.prs=cup(us.plot)
+else
+us.plot=fcp()
+if us.plot then
+us.prs=cup(us.plot)
 end
-
-local sg = Instance.new("ScreenGui")
-sg.Name = "UnlockGui"
-sg.ResetOnSpawn = false
-sg.Parent = Me:WaitForChild("PlayerGui")
-
-local ub = Instance.new("TextButton")
-ub.Name = "UnlockButton"
-ub.Text = "Unlock"
-ub.Size = UDim2.new(0, 60, 0, 30)
-ub.Position = UDim2.new(1, -95, 0.5, -130)
-ub.AnchorPoint = Vector2.new(1, 0.5)
-ub.BackgroundColor3 = Color3.new(0, 0, 0)
-ub.TextColor3 = Color3.new(1, 1, 1)
-ub.Font = Enum.Font.GothamBold
-ub.TextSize = 14
-ub.Parent = sg
-Instance.new("UICorner", ub).CornerRadius = UDim.new(0, 6)
-
+end
+local p=us.prs[cf]
+if not p then
+return false
+end
+local s=fp(p)
+return s
+end
+local sg=Instance.new("ScreenGui")
+sg.Name="UnlockGui"
+sg.ResetOnSpawn=false
+sg.Parent=Me:WaitForChild("PlayerGui")
+local ub=Instance.new("TextButton")
+ub.Name="UnlockButton"
+ub.Text="Unlock"
+ub.Size=UDim2.new(0,60,0,30)
+ub.Position=UDim2.new(1,-95,0.5,-130)
+ub.AnchorPoint=Vector2.new(1,0.5)
+ub.BackgroundColor3=Color3.new(0,0,0)
+ub.TextColor3=Color3.new(1,1,1)
+ub.Font=Enum.Font.GothamBold
+ub.TextSize=14
+ub.Parent=sg
+Instance.new("UICorner",ub).CornerRadius=UDim.new(0,6)
 ub.MouseButton1Click:Connect(function()
-    ucf()
+ucf()
 end)
-
-_G.ubcl = function()
-    if uc then
-        uc:Disconnect()
-        uc = nil
-    end
-    if sg and sg.Parent then
-        sg:Destroy()
-    end
+_G.ubcl=function()
+if uc then
+uc:Disconnect()
+uc=nil
+end
+if sg and sg.Parent then
+sg:Destroy()
+end
 end
