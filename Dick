@@ -21,70 +21,12 @@ Instance.new("UICorner", e).CornerRadius = UDim.new(0, 6)
 
 local f = false
 local speed = 100
+local h = {"Flying Carpet", "Cupid's Wings", "Santa's Sleigh", "Witch's Broom", "Speed Coil", "Gravity Coil", "Coil Combo", "Invisibility Cloak", "Laser Cape"}
 local i, j, k
 local l
-local unequipConnection = nil
 local toolCheckConnection = nil
 
-local function unequipAllTools()
-    local char = c.Character
-    if not char then return end
-    
-    local hum = char:FindFirstChild("Humanoid")
-    if hum then
-        hum:UnequipTools()
-    end
-    
-    for _, tool in ipairs(char:GetChildren()) do
-        if tool:IsA("Tool") then
-            tool.Parent = c.Backpack
-        end
-    end
-    
-    for _, tool in ipairs(c.Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            tool.Parent = c.Backpack
-        end
-    end
-end
-
-local function blockTools()
-    if toolCheckConnection then
-        toolCheckConnection:Disconnect()
-    end
-    
-    toolCheckConnection = c.ChildAdded:Connect(function(child)
-        if f and child:IsA("Tool") then
-            child:Destroy()
-        end
-    end)
-    
-    local char = c.Character
-    if char then
-        local function checkTool(tool)
-            if f and tool:IsA("Tool") then
-                tool:Destroy()
-            end
-        end
-        
-        for _, tool in ipairs(char:GetChildren()) do
-            if tool:IsA("Tool") then
-                checkTool(tool)
-            end
-        end
-        
-        char.ChildAdded:Connect(checkTool)
-    end
-end
-
-local function allowTools()
-    if toolCheckConnection then
-        toolCheckConnection:Disconnect()
-        toolCheckConnection = nil
-    end
-end
-
-local function initChar()
+local function m()
     if not c.Character then
         c.CharacterAdded:Wait()
     end
@@ -93,16 +35,48 @@ local function initChar()
     k = i:WaitForChild("HumanoidRootPart")
 end
 
-local function setupSpeed()
+local function unequipAll()
+    if j then
+        j:UnequipTools()
+    end
+    for _, tool in ipairs(i:GetChildren()) do
+        if tool:IsA("Tool") then
+            tool.Parent = c.Backpack
+        end
+    end
+end
+
+local function n()
+    for o, p in ipairs(h) do
+        local q = i:FindFirstChild(p) or c.Backpack:FindFirstChild(p)
+        if q and q.Parent ~= i then
+            q.Parent = i
+            break
+        end
+    end
+end
+
+local function r()
     if l then
         l:Disconnect()
     end
     l = b.RenderStepped:Connect(function()
-        if f and k and j then
-            local moveDir = j.MoveDirection
-            if moveDir.Magnitude > 0 then
-                k.Velocity = Vector3.new(moveDir.X * speed, k.Velocity.Y, moveDir.Z * speed)
+        if f and k then
+            local s = j.MoveDirection
+            if s.Magnitude > 0 then
+                k.Velocity = Vector3.new(s.X * speed, k.Velocity.Y, s.Z * speed)
             end
+        end
+    end)
+end
+
+local function blockUnequip()
+    if toolCheckConnection then
+        toolCheckConnection:Disconnect()
+    end
+    toolCheckConnection = j:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+        if f then
+            j.WalkSpeed = 16
         end
     end)
 end
@@ -110,21 +84,22 @@ end
 e.MouseButton1Click:Connect(function()
     f = not f
     e.BackgroundColor3 = f and Color3.new(0, 1, 0) or Color3.new(0, 0, 0)
-    
     if f then
-        initChar()
-        unequipAllTools()
-        blockTools()
-        setupSpeed()
+        m()
+        unequipAll()
+        n()
+        r()
+        blockUnequip()
     else
         if l then
             l:Disconnect()
             l = nil
         end
-        if j then
-            j.WalkSpeed = 16
+        if toolCheckConnection then
+            toolCheckConnection:Disconnect()
+            toolCheckConnection = nil
         end
-        allowTools()
+        j.WalkSpeed = 16
     end
 end)
 
@@ -133,11 +108,11 @@ c.CharacterAdded:Connect(function(t)
     i = t
     j = t:WaitForChild("Humanoid")
     k = t:WaitForChild("HumanoidRootPart")
-    
     if f then
-        unequipAllTools()
-        blockTools()
-        setupSpeed()
+        unequipAll()
+        n()
+        r()
+        blockUnequip()
     end
 end)
 
@@ -145,7 +120,5 @@ getfenv().shsp = function()
     if d then d:Destroy() end
     if l then l:Disconnect() end
     if toolCheckConnection then toolCheckConnection:Disconnect() end
-    if unequipConnection then unequipConnection:Disconnect() end
     if j then j.WalkSpeed = 16 end
-    allowTools()
 end
