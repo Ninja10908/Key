@@ -1,0 +1,58 @@
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local SETTINGS = {
+    DROP_POWER = 85, 
+    DROP_FALL = 200,
+    COOLDOWN = 0.8
+}
+
+local dropCooldown = false
+
+local d = Instance.new("ScreenGui")
+d.Name = "SpeedGui"
+d.ResetOnSpawn = false
+d.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local e = Instance.new("TextButton")
+e.Name = "Drop"
+e.Text = "Drop"
+e.Size = UDim2.new(0, 60, 0, 30)
+e.Position = UDim2.new(1, -95, 0.5, -55)
+e.AnchorPoint = Vector2.new(1, 0.5)
+e.BackgroundColor3 = Color3.new(0, 0, 0)
+e.TextColor3 = Color3.new(1, 1, 1)
+e.Font = Enum.Font.GothamBold
+e.TextSize = 14
+e.Parent = d
+Instance.new("UICorner", e).CornerRadius = UDim.new(0, 6)
+
+local function performDrop()
+    if dropCooldown then return end
+    
+    local character = LocalPlayer.Character
+    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    
+    if hrp then
+        dropCooldown = true
+        hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, SETTINGS.DROP_POWER, hrp.AssemblyLinearVelocity.Z)
+        
+        task.wait(0.35)
+        
+        if hrp and hrp.Parent then
+            hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, -SETTINGS.DROP_FALL, hrp.AssemblyLinearVelocity.Z)
+        end
+        
+        task.wait(0.45)
+        dropCooldown = false
+    end
+end
+
+e.MouseButton1Click:Connect(function()
+    if not dropCooldown then
+        e.BackgroundColor3 = Color3.new(0.5, 0, 0) 
+        performDrop()
+        e.BackgroundColor3 = Color3.new(0, 0, 0)
+    end
+end)
