@@ -3,8 +3,8 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local SETTINGS = {
-    DROP_POWER = 85, 
-    DROP_FALL = 200,
+    DROP_POWER = 130, 
+    DROP_FALL = 270,
     COOLDOWN = 0.8
 }
 
