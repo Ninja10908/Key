@@ -5,10 +5,14 @@ local LocalPlayer = Players.LocalPlayer
 local SETTINGS = {
     DROP_POWER = 130, 
     DROP_FALL = 270,
-    COOLDOWN = 0.8
+    COOLDOWN = 0.8,
+    GODMODE_DURATION = 4
 }
 
 local dropCooldown = false
+local godModeActive = false
+local godModeConnection = nil
+local fallDamageConnection = nil
 
 local d = Instance.new("ScreenGui")
 d.Name = "SpeedGui"
@@ -27,6 +31,65 @@ e.Font = Enum.Font.GothamBold
 e.TextSize = 14
 e.Parent = d
 Instance.new("UICorner", e).CornerRadius = UDim.new(0, 6)
+
+local function disableFallDamage(character)
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+        
+        local function onStateChanged(oldState, newState)
+            if newState == Enum.HumanoidStateType.FallingDown or newState == Enum.HumanoidStateType.Ragdoll then
+                humanoid:ChangeState(Enum.HumanoidStateType.Running)
+            end
+        end
+        humanoid.StateChanged:Connect(onStateChanged)
+    end
+end
+
+local function enableGodMode()
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+    
+    godModeActive = true
+    
+    disableFallDamage(character)
+    
+    if godModeConnection then
+        godModeConnection:Disconnect()
+    end
+    if fallDamageConnection then
+        fallDamageConnection:Disconnect()
+    end
+    
+    godModeConnection = RunService.Heartbeat:Connect(function()
+        if humanoid and humanoid.Parent then
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end)
+    
+    fallDamageConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+        if humanoid.Health < humanoid.MaxHealth and godModeActive then
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end)
+    
+    task.wait(SETTINGS.GODMODE_DURATION)
+    
+    if godModeConnection then
+        godModeConnection:Disconnect()
+        godModeConnection = nil
+    end
+    if fallDamageConnection then
+        fallDamageConnection:Disconnect()
+        fallDamageConnection = nil
+    end
+    
+    godModeActive = false
+end
 
 local function performDrop()
     if dropCooldown then return end
@@ -51,7 +114,8 @@ end
 
 e.MouseButton1Click:Connect(function()
     if not dropCooldown then
-        e.BackgroundColor3 = Color3.new(0.5, 0, 0) 
+        e.BackgroundColor3 = Color3.new(0.5, 0, 0)
+        enableGodMode()
         performDrop()
         e.BackgroundColor3 = Color3.new(0, 0, 0)
     end
